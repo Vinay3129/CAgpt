@@ -1,53 +1,104 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import ChatInterface from './components/ChatInterface';
+import { Toaster } from './components/ui/toaster';
+import { useToast } from './hooks/use-toast';
+import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function CAgptApp() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [selectedChatId, setSelectedChatId] = useState('1');
+  const [selectedSubject, setSelectedSubject] = useState('All Subjects');
+  const { toast } = useToast();
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
+  // Initialize theme
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const handleNewChat = () => {
+    const newChatId = Date.now().toString();
+    setSelectedChatId(newChatId);
+    setIsSidebarOpen(false); // Close sidebar on mobile after action
+    
+    toast({
+      title: "New Chat Started",
+      description: "Ready to help with your CA studies!",
+    });
+  };
+
+  const handleSelectChat = (chatId) => {
+    setSelectedChatId(chatId);
+    setIsSidebarOpen(false); // Close sidebar on mobile after selection
+  };
+
+  const handleThemeToggle = (checked) => {
+    setIsDarkMode(checked);
+    toast({
+      title: checked ? "Dark Mode" : "Light Mode",
+      description: `Switched to ${checked ? 'dark' : 'light'} theme`,
+    });
+  };
+
+  const handleSubjectFilter = (subject) => {
+    setSelectedSubject(subject);
+    toast({
+      title: "Filter Applied",
+      description: `Showing chats for: ${subject}`,
+    });
+  };
+
+  const handlePdfUpload = (file) => {
+    // Mock PDF upload functionality
+    console.log('Uploading PDF:', file.name);
+    toast({
+      title: "PDF Upload",
+      description: `Mock upload: ${file.name} (Backend integration required)`,
+    });
+  };
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className={`h-screen flex overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={handleToggleSidebar}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        selectedChatId={selectedChatId}
+        isDarkMode={isDarkMode}
+        onThemeToggle={handleThemeToggle}
+        onSubjectFilter={handleSubjectFilter}
+        selectedSubject={selectedSubject}
+        onPdfUpload={handlePdfUpload}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col lg:ml-0">
+        <ChatInterface
+          onToggleSidebar={handleToggleSidebar}
+          currentChatId={selectedChatId}
+        />
+      </div>
+
+      <Toaster />
     </div>
   );
-};
+}
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<CAgptApp />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
