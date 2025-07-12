@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
-import { Toaster } from './components/ui/toaster';
-import { useToast } from './hooks/use-toast';
 import './App.css';
 
 function CAgptApp() {
@@ -11,7 +9,6 @@ function CAgptApp() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [selectedChatId, setSelectedChatId] = useState('1');
   const [selectedSubject, setSelectedSubject] = useState('All Subjects');
-  const { toast } = useToast();
 
   // Initialize theme
   useEffect(() => {
@@ -27,10 +24,7 @@ function CAgptApp() {
     setSelectedChatId(newChatId);
     setIsSidebarOpen(false); // Close sidebar on mobile after action
     
-    toast({
-      title: "New Chat Started",
-      description: "Ready to help with your CA studies!",
-    });
+    console.log("New Chat Started");
   };
 
   const handleSelectChat = (chatId) => {
@@ -40,27 +34,15 @@ function CAgptApp() {
 
   const handleThemeToggle = (checked) => {
     setIsDarkMode(checked);
-    toast({
-      title: checked ? "Dark Mode" : "Light Mode",
-      description: `Switched to ${checked ? 'dark' : 'light'} theme`,
-    });
   };
 
   const handleSubjectFilter = (subject) => {
     setSelectedSubject(subject);
-    toast({
-      title: "Filter Applied",
-      description: `Showing chats for: ${subject}`,
-    });
   };
 
   const handlePdfUpload = (file) => {
     // Mock PDF upload functionality
     console.log('Uploading PDF:', file.name);
-    toast({
-      title: "PDF Upload",
-      description: `Mock upload: ${file.name} (Backend integration required)`,
-    });
   };
 
   return (
@@ -86,8 +68,6 @@ function CAgptApp() {
           currentChatId={selectedChatId}
         />
       </div>
-
-      <Toaster />
     </div>
   );
 }
