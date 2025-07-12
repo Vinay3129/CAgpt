@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Switch } from './ui/switch';
 import { mockChatHistory, subjectFilters } from '../mock';
 import { 
   Plus, 
@@ -13,8 +10,79 @@ import {
   Menu,
   X,
   Calculator,
-  TrendingUp
+  ChevronDown
 } from 'lucide-react';
+
+const Button = ({ children, className = '', onClick, variant = 'default', size = 'default', ...props }) => {
+  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+  
+  const variants = {
+    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    ghost: 'hover:bg-accent hover:text-accent-foreground',
+    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+  };
+  
+  const sizes = {
+    default: 'h-10 px-4 py-2',
+    sm: 'h-9 rounded-md px-3',
+    icon: 'h-10 w-10'
+  };
+  
+  return (
+    <button
+      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+const Select = ({ value, onValueChange, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        <span>{value}</span>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </button>
+      {isOpen && (
+        <div className="absolute top-full mt-1 w-full rounded-md border bg-popover p-1 shadow-md z-50">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SelectItem = ({ value, onSelect, children }) => (
+  <button
+    onClick={() => onSelect(value)}
+    className="w-full rounded-sm px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground"
+  >
+    {children}
+  </button>
+);
+
+const Switch = ({ checked, onCheckedChange }) => (
+  <button
+    onClick={() => onCheckedChange(!checked)}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      checked ? 'bg-primary' : 'bg-input'
+    }`}
+  >
+    <span
+      className={`inline-block h-5 w-5 transform rounded-full bg-background transition-transform ${
+        checked ? 'translate-x-5' : 'translate-x-0'
+      }`}
+    />
+  </button>
+);
 
 const Sidebar = ({ 
   isOpen, 
@@ -32,7 +100,6 @@ const Sidebar = ({
 
   const handleDeleteChat = (chatId, e) => {
     e.stopPropagation();
-    // Mock delete functionality
     console.log('Deleting chat:', chatId);
   };
 
@@ -40,7 +107,6 @@ const Sidebar = ({
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       onPdfUpload(file);
-      // Reset input
       e.target.value = '';
     }
   };
@@ -100,20 +166,15 @@ const Sidebar = ({
             Subject Filter
           </label>
           <Select value={selectedSubject} onValueChange={onSubjectFilter}>
-            <SelectTrigger className="w-full bg-zinc-900/50 border-zinc-700 text-white rounded-lg">
-              <SelectValue placeholder="Select subject" />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-zinc-700">
-              {subjectFilters.map((subject) => (
-                <SelectItem 
-                  key={subject} 
-                  value={subject}
-                  className="text-white hover:bg-zinc-800 focus:bg-zinc-800"
-                >
-                  {subject}
-                </SelectItem>
-              ))}
-            </SelectContent>
+            {subjectFilters.map((subject) => (
+              <SelectItem 
+                key={subject} 
+                value={subject}
+                onSelect={onSubjectFilter}
+              >
+                {subject}
+              </SelectItem>
+            ))}
           </Select>
         </div>
 
@@ -180,14 +241,12 @@ const Sidebar = ({
                 </div>
                 
                 {hoveredChatId === chat.id && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
                     onClick={(e) => handleDeleteChat(chat.id, e)}
-                    className="absolute top-2 right-2 text-zinc-400 hover:text-red-400 p-1 h-auto opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 text-zinc-400 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 className="w-3 h-3" />
-                  </Button>
+                  </button>
                 )}
               </div>
             ))}

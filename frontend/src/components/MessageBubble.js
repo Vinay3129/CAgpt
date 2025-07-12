@@ -1,6 +1,17 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from './ui/avatar';
 import { Calculator, User } from 'lucide-react';
+
+const Avatar = ({ children, className = '' }) => (
+  <div className={`relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full ${className}`}>
+    {children}
+  </div>
+);
+
+const AvatarFallback = ({ children, className = '' }) => (
+  <div className={`flex h-full w-full items-center justify-center rounded-full bg-muted ${className}`}>
+    {children}
+  </div>
+);
 
 const MessageBubble = ({ message, isUser }) => {
   const formatTimestamp = (timestamp) => {
@@ -11,11 +22,9 @@ const MessageBubble = ({ message, isUser }) => {
   };
 
   const formatContent = (content) => {
-    // Simple formatting for bold text and line breaks
     return content
       .split('\n')
       .map((line, index) => {
-        // Handle bold text with **text**
         const boldFormatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         return (
           <div key={index} className={index > 0 ? 'mt-2' : ''}>

@@ -1,9 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
 import MessageBubble from './MessageBubble';
 import { mockMessages, mockBotResponse } from '../mock';
 import { Send, Loader2, Menu } from 'lucide-react';
+
+const Button = ({ children, className = '', onClick, variant = 'default', size = 'default', ...props }) => {
+  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+  
+  const variants = {
+    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    ghost: 'hover:bg-accent hover:text-accent-foreground',
+    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+  };
+  
+  const sizes = {
+    default: 'h-10 px-4 py-2',
+    sm: 'h-9 rounded-md px-3',
+    icon: 'h-10 w-10'
+  };
+  
+  return (
+    <button
+      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+const Textarea = ({ className = '', ...props }) => (
+  <textarea
+    className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    {...props}
+  />
+);
 
 const ChatInterface = ({ onToggleSidebar, currentChatId }) => {
   const [messages, setMessages] = useState(mockMessages);
@@ -21,7 +52,6 @@ const ChatInterface = ({ onToggleSidebar, currentChatId }) => {
   }, [messages]);
 
   useEffect(() => {
-    // Reset messages when switching chats
     if (currentChatId) {
       setMessages(mockMessages);
     }
@@ -42,7 +72,6 @@ const ChatInterface = ({ onToggleSidebar, currentChatId }) => {
     setIsLoading(true);
 
     try {
-      // Mock API call
       const botResponse = await mockBotResponse(userMessage.content);
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
@@ -69,7 +98,6 @@ const ChatInterface = ({ onToggleSidebar, currentChatId }) => {
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
     
-    // Auto-resize textarea
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
@@ -188,13 +216,13 @@ const ChatInterface = ({ onToggleSidebar, currentChatId }) => {
                 disabled={isLoading}
               />
               {inputValue.trim() && (
-                <Button
+                <button
                   onClick={handleSend}
                   disabled={isLoading}
-                  className="absolute right-2 bottom-2 h-8 w-8 p-0 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg"
+                  className="absolute right-2 bottom-2 h-8 w-8 p-0 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg flex items-center justify-center"
                 >
-                  <Send className="w-4 h-4" />
-                </Button>
+                  <Send className="w-4 h-4 text-white" />
+                </button>
               )}
             </div>
           </div>
